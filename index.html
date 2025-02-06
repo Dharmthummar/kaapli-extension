@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kaapli-Farrey Extension</title>
+    <style>
+        /* Dark Theme */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #bbbbbb;
+            margin-bottom: 1.5rem;
+        }
+
+        ol {
+            text-align: left;
+            margin: 0 auto;
+            padding-left: 1.5rem;
+            max-width: 80%;
+        }
+
+        li {
+            font-size: 1rem;
+            color: #cccccc;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        a {
+            color: #bb86fc;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            background-color: #333;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.9rem;
+            color: #ffcc00;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #bb86fc;
+            color: #121212;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #9c6eff;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #121212;
+            background-color: #bb86fc;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .warning {
+            background-color: #ff3b30;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .credits {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .credits a {
+            color: #bb86fc;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .credits a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">D</div>
+
+        <!-- Title -->
+        <h1>Welcome to kaapli-Farrey Extension</h1>
+        <p>Follow these simple steps to install the extension and start acing your quizzes:</p>
+
+        <!-- Steps -->
+        <ol>
+            <li>Download the latest release from the <a href="https://github.com/dharmthummar/kaapli-extension/releases">Releases</a> section.</li>
+            <li>Extract the <code>.zip</code> file to a folder on your computer.</li>
+            <li>Open Chrome and go to <code>chrome://extensions/</code>.</li>
+            <li>Enable <strong>Developer mode</strong> (toggle in the top-right corner).</li>
+            <li>Click <strong>Load unpacked</strong> and select the folder where the extension files are extracted.</li>
+        </ol>
+
+        <!-- Warning -->
+        <div class="warning">
+            ⚠️ Important: Use your own API for security reasons!
+        </div>
+
+        <!-- Download Button -->
+        <a href="https://github.com/dharmthummar/kaapli-extension/releases" class="button">Download Now</a>
+
+        <!-- Credits -->
+        <div class="credits">
+            Created by <a href="https://github.com/dharmthummar">Dharm Thummar</a>
+        </div>
+    </div>
+</body>
+</html>

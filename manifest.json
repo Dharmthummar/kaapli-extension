@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "kaapli-Farrey",
+    "version": "1.0",
+    "description": "Get correct answers for quiz questions using Gemini API. This extension is developed by DharmThummar. desclaimer : This extension is only for educational purpose. I am not responsible for any misuse of this extension.",
+    "permissions": [
+        "activeTab",
+        "clipboardRead",
+        "clipboardWrite",
+        "storage"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icon.png",
+            "48": "icon.png",
+            "128": "icon.png"
+        }
+    },
+    "icons": {
+        "16": "icon.png",
+        "32": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    },
+    "host_permissions": [
+        "https://generativelanguage.googleapis.com/*"
+    ],
+    "commands": {
+        "_execute_action": {
+            "suggested_key": {
+                "default": "Alt+Z"
+            }
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ]
+}
