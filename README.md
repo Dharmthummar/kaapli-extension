@@ -8,6 +8,7 @@ Kaapli is designed as an educational tool to help users understand and learn fro
 - Violating any educational institution's honor code or academic integrity policies
 
 The extension should be used responsibly as a learning aid, not as a substitute for genuine learning and understanding.
+![image](https://github.com/user-attachments/assets/c4f7f397-9b48-47ef-8e85-9c409c8bbbcf)
 
 ## Features
 - **Instant Quiz Answers**: Get accurate answers for quiz questions in seconds
