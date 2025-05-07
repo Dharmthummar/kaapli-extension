@@ -1,23 +1,38 @@
-# kaapli Extension
+# Kaapli - AI Quiz Assistant
+Kaapli is a powerful Chrome extension that leverages the Gemini API to enhance your quiz experience with intelligent assistance.
 
-A Chrome extension that helps you get correct answers for quiz questions using the Gemini API.
+## ⚠️ Ethics Disclaimer
+Kaapli is designed as an educational tool to help users understand and learn from quiz questions. Users are responsible for using this extension ethically and in accordance with their institution's academic integrity policies. We do not endorse or encourage:
+- Using Kaapli during formal examinations where external assistance is prohibited
+- Submitting AI-generated answers as your own work without proper attribution
+- Violating any educational institution's honor code or academic integrity policies
 
-desclaimer : This extension is only for educational purpose. I am not responsible for any misuse of this extension.
+The extension should be used responsibly as a learning aid, not as a substitute for genuine learning and understanding.
 
 ## Features
-- Automatically copies selected text.
-- Fetches correct answers using the Gemini API.
-- Easy to use and lightweight.
+- **Instant Quiz Answers**: Get accurate answers for quiz questions in seconds
+- **Smart Selection**: Simply select quiz text and press Alt+K to get answers
+- **Image Analysis**: Supports image-based questions through screenshot or paste
+- **Custom Mode**: Ask your own questions with a double-click activation
+- **Browser Integration**: Seamlessly works with your browser's appearance settings
+- **Privacy-Focused**: Your API key is stored locally for maximum security
+
+## How It Works
+1. **Select quiz text** or take a screenshot of a question
+2. **Press Alt+K** (or your custom shortcut) to activate
+3. **Get instant answers** powered by Google's Gemini AI
 
 ## Installation
+1. Download the extension from the releases page
+2. Add to Chrome from chrome://extensions (Developer Mode)
+3. Enter your Gemini API key on first use
+4. Start using with Alt+K shortcut
 
-1. Download the latest release from the [Releases](https://github.com/dharmthummar/kaapli-extension/releases) section.
-2. Extract the `.zip` file to a folder.
-3. Open Chrome and go to `chrome://extensions/`.
-4. Enable "Developer mode" (toggle in the top-right corner).
-5. Click "Load unpacked" and select the folder where the extension files are extracted.
-6. The extension will be added to your browser.
+## Requirements
+- Google Chrome or Chromium-based browser
+- Gemini API key (free to obtain)
+- Internet connection
 
-## Usage
-1. Copy a quiz question to your clipboard.
-2. Click the extension icon to fetch the correct answer.
+Perfect for students, quiz enthusiasts, and anyone looking to enhance their learning experience with AI assistance.
+
+[Download Latest Release](https://github.com/dharmthummar/kaapli-extension/releases)
