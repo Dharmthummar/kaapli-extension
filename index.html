@@ -1,167 +1,2490 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>kaapli-Farrey Extension</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kaapli - AI Quiz Assistant</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+ :root {
+      --primary: 
+#10a37f;
+      --primary-dark: 
+#0e8f70;
+      --secondary: 
+#0ea5e9;
+      --text: 
+#111827;
+      --text-light: 
+#4b5563;
+      --text-lighter: 
+#9ca3af;
+      --background: 
+#ffffff;
+      --background-alt: 
+#f9fafb;
+      --border: 
+#e5e7eb;
+      --border-dark: 
+#d1d5db;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --shadow-strong: rgba(0, 0, 0, 0.15);
+      --radius: 8px;
+      --glow: rgba(16, 163, 127, 0.15);
+    }
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #60a5fa; /* Softer Gemini blue */
+    --primary-dark: #3b82f6;
+    --secondary: #c084fc; /* Brighter purple for dark mode */
+    --text: #f3f4f6;
+    --text-light: #d1d5db;
+    --text-lighter: #9ca3af;
+    --background: #18181b; /* Deep slate */
+    --background-alt: #1f2937;
+    --border: #374151;
+    --border-dark: #4b5563;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --shadow-strong: rgba(0, 0, 0, 0.6);
+    --glow: rgba(96, 165, 250, 0.2); /* Blue glow */
+  }
+}
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--background);
+      box-shadow: 0 2px 10px var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px var(--glow);
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px var(--glow);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 6rem 0 4rem;
+      background: linear-gradient(to bottom, var(--background), var(--background-alt));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310a37f' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-light);
+      margin-bottom: 2rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+
+    .hero-image {
+      display: block;
+      max-width: 100%;
+      margin: 0 auto;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px var(--shadow-strong);
+      transition: transform 0.5s ease;
+    }
+
+    .hero-image:hover {
+      transform: translateY(-5px);
+    }
+
+    /* Features Section */
+    .features {
+      padding: 5rem 0;
+      background-color: var(--background);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-header h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
+    .section-header p {
+      font-size: 1.125rem;
+      color: var(--text-light);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background-color: var(--background-alt);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-top: 3px solid transparent;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px var(--shadow-strong);
+      border-top: 3px solid var(--primary);
+    }
+
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.1);
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      color: var(--text-light);
+      flex-grow: 1;
+    }
+
+    /* How It Works Section */
+    .how-it-works {
+      padding: 5rem 0;
+      background-color: var(--background-alt);
+    }
+
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4rem;
+      margin-top: 3rem;
+    }
+
+    .workflow-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .workflow-item:nth-child(even) {
+      direction: rtl;
+    }
+
+    .workflow-item:nth-child(even) .workflow-content {
+      direction: ltr;
+    }
+
+    .workflow-image {
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 8px 20px var(--shadow);
+      transition: transform 0.5s ease;
+      direction:ltr
+    }
+
+    .workflow-image:hover {
+      transform: translateY(-5px);
+    }
+
+    .workflow-image img, .workflow-image video {
+      width: 100%;
+      display: block;
+      border-radius: var(--radius);
+    }
+
+    .workflow-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .workflow-content .step {
+      display: inline-block;
+      padding: 0.3rem 1rem;
+      background: rgba(16, 163, 127, 0.1);
+      border-radius: 20px;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .workflow-content h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .workflow-content p {
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Installation Section */
+    .installation {
+      padding: 5rem 0;
+      background-color: var(--background);
+    }
+
+    .steps-container {
+      counter-reset: step;
+      max-width: 800px;
+      margin: 3rem auto 0;
+    }
+
+    .step-item {
+      position: relative;
+      padding-left: 4rem;
+      margin-bottom: 2.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .step-item:hover {
+      transform: translateX(5px);
+    }
+
+    .step-item:before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 3rem;
+      height: 3rem;
+      background-color: var(--primary);
+      color: white;
+      font-weight: 700;
+      font-size: 1.25rem;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px var(--glow);
+      transition: transform 0.3s ease;
+    }
+
+    .step-item:hover:before {
+      transform: scale(1.1);
+    }
+
+    .step-item h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .step-item p {
+      color: var(--text-light);
+      margin-bottom: 0.75rem;
+    }
+
+    .step-item code {
+      background-color: var(--background-alt);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+
+    /* FAQ Section */
+    .faq {
+      padding: 5rem 0;
+      background-color: var(--background-alt);
+    }
+
+    .faq-container {
+      max-width: 800px;
+      margin: 3rem auto 0;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .faq-item:hover {
+      border-bottom-color: var(--primary);
+    }
+
+    .faq-question {
+      cursor: pointer;
+      font-size: 1.25rem;
+      font-weight: 600;
+      padding: 1rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-question::after {
+      content: '\f107';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      transition: transform 0.3s ease;
+      color: var(--primary);
+    }
+
+    .faq-item.active .faq-question::after {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      color: var(--text-light);
+      padding-right: 2rem;
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 300px;
+      padding-bottom: 1rem;
+    }
+
+    /* CTA Section */
+    .cta {
+      padding: 5rem 0;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.3;
+    }
+
+    .cta h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .cta p {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta .btn {
+      background-color: white;
+      color: var(--primary);
+      font-size: 1.125rem;
+      padding: 0.75rem 2rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta .btn:hover {
+      background-color: rgba(255, 255, 255, 0.9);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--background);
+      padding: 3rem 0 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-logo-icon {
+      width: 30px;
+      height: 30px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .footer-logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .footer-about p {
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+      max-width: 400px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .footer-social a {
+      width: 36px;
+      height: 36px;
+      background-color: var(--background-alt);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-light);
+      transition: all 0.3s ease;
+    }
+
+    .footer-social a:hover {
+      background-color: var(--primary);
+      color: white;
+      transform: translateY(-3px);
+    }
+
+    .footer-links h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links ul {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-light);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+      transform: translateX(3px);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-lighter);
+      font-size: 0.875rem;
+    }
+
+    .warning-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: rgba(234, 88, 12, 0.15);
+      color: #ea580c;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 500;
+      margin-top: 1.5rem;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 992px) {
+      .workflow-item {
+        grid-template-columns: 1fr;
+      }
+      .workflow-item:nth-child(even) {
+        direction: ltr;
+      }
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.75rem;
+      }
+      .nav-links {
+        display: none;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
     <style>
-        /* Dark Theme */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+        /* Floating Chai Button Styles */
+       /* Floating Chai Button Styles */
+#chai-qr-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background-color: #F1C40F;
+  color: #333;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.3s ease;
+}
 
-        .container {
-            background-color: #1e1e1e;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            padding: 2rem;
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-        }
+#chai-qr-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
 
-        h1 {
-            font-size: 2rem;
-            color: #ffffff;
-            margin-bottom: 1.5rem;
-        }
+/* QR Code Modal Styles */
+.qr-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
 
-        p {
-            font-size: 1.1rem;
-            color: #bbbbbb;
-            margin-bottom: 1.5rem;
-        }
+.qr-modal-content {
+  background-color: var(--background);
+  padding: 2rem;
+  border-radius: var(--radius);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
 
-        ol {
-            text-align: left;
-            margin: 0 auto;
-            padding-left: 1.5rem;
-            max-width: 80%;
-        }
+.qr-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-light);
+  cursor: pointer;
+}
 
-        li {
-            font-size: 1rem;
-            color: #cccccc;
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
+.qr-modal-content h3 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
 
-        a {
-            color: #bb86fc;
-            text-decoration: none;
-            font-weight: 500;
-        }
+.qr-code-container {
+  margin: 1.5rem auto;
+  padding: 1rem;
+  background-color: white;
+  border-radius: var(--radius);
+  width: fit-content;
+}
 
-        a:hover {
-            text-decoration: underline;
-        }
+.qr-code-container img, .qr-code-container canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 
-        code {
-            background-color: #333;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: "Courier New", Courier, monospace;
-            font-size: 0.9rem;
-            color: #ffcc00;
-        }
+.qr-modal-content p {
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+}
 
-        .button {
-            display: inline-block;
-            background-color: #bb86fc;
-            color: #121212;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            margin-top: 1.5rem;
-            transition: background-color 0.3s ease;
-        }
+.qr-upi-id {
+  font-weight: bold;
+  color: var(--primary) !important;
+  margin-top: 0.5rem;
+}
+      </style>
 
-        .button:hover {
-            background-color: #9c6eff;
-        }
+<style>    /* Additional animation styles */
+  .popup {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background-color: #121212;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.4s ease, transform 0.4s ease, max-height 0.6s ease;
+      width: 350px;
+      max-height: 0;
+  }
 
-        .logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #121212;
-            background-color: #bb86fc;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 1.5rem auto;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
+  .popup.visible {
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 500px;
+  }
 
-        .warning {
-            background-color: #ff3b30;
-            color: #fff;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1.5rem;
-            font-size: 1rem;
-            font-weight: bold;
-        }
+  .first-popup, .response-popup {
+      z-index: 10;
+  }
 
-        .credits {
-            margin-top: 2rem;
-            font-size: 0.9rem;
-            color: #777;
-        }
+  .kaapli-response {
+      padding: 15px;
+      color: #f0f0f0;
+      font-size: 14px;
+      line-height: 1.6;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: #1a1a1a;
+  }
 
-        .credits a {
-            color: #bb86fc;
-            text-decoration: none;
-            font-weight: 500;
-        }
+  .kaapli-response p {
+      margin: 0 0 10px 0;
+  }
 
-        .credits a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  .kaapli-response p:last-child {
+      margin-bottom: 0;
+  }
+
+  /* Quiz content styling */
+  .quiz-content {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      background-color: #121212;
+      border-radius: 8px;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.4s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .quiz-content.visible {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+  }
+
+  .quiz-question {
+      color: #f0f0f0;
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 12px;
+  }
+
+  .quiz-options {
+      margin-top: 15px;
+  }
+
+  .option {
+      margin-bottom: 10px;
+      color: #d0d0d0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background-color: #1e1e1e;
+      transition: background-color 0.3s ease;
+  }
+
+  .option:hover {
+      background-color: #2a2a2a;
+  }
+
+  /* Selection highlight */
+  .selection-highlight {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 300px;
+      background-color: rgba(25, 118, 210, 0.2);
+      border: 2px solid rgba(25, 118, 210, 0.5);
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 0 rgba(25, 118, 210, 0.3);
+  }
+
+  .selection-highlight.visible {
+      opacity: 1;
+      box-shadow: 0 0 15px rgba(25, 118, 210, 0.3);
+      animation: pulse-border 2s infinite;
+  }
+
+  @keyframes pulse-border {
+      0% { border-color: rgba(25, 118, 210, 0.5); }
+      50% { border-color: rgba(25, 118, 210, 0.8); }
+      100% { border-color: rgba(25, 118, 210, 0.5); }
+  }
+
+  /* Keyboard shortcut notification */
+  .keyboard-shortcut {
+      position: absolute;
+      top: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 24px;
+      font-size: 15px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .keyboard-shortcut.visible {
+      opacity: 1;
+      animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+      0% { transform: translateX(-50%) scale(1); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+      50% { transform: translateX(-50%) scale(1.1); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
+      100% { transform: translateX(-50%) scale(1); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+  }
+
+  /* Image popup styling */
+  .image-container {
+      padding: 1px;
+      height: 40px;
+      width: 50px;
+      overflow: hidden;
+      border-radius: 6px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: #1a1a1a;
+  }
+
+  .query-image {
+      max-width: 100%;
+      max-height: 150px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+  }
+
+  .query-image:hover {
+      transform: scale(1.02);
+  }
+
+  /* Quiz popup styling */
+  .quiz-popup {
+      z-index: 15;
+  }
+
+  /* Image popups styling */
+  .image-popup, .image-response-popup {
+      z-index: 20;
+  }    /* Browser animation styles */
+.browser-window {
+    width: 100%;
+    max-width: 800px;
+    background-color: #000;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 30px var(--shadow-strong);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    margin: 0 auto;
+}
+
+.browser-window:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px var(--shadow-strong);
+}
+
+/* Tab bar styling */
+.tab-bar {
+    display: flex;
+    background-color: #202020;
+    height: 35px;
+    padding: 0 10px;
+    align-items: center;
+    position: relative;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    background-color: #202020;
+    padding: 0 15px;
+    height: 100%;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-icon {
+    width: 16px;
+    height: 16px;
+    background-color: #666;
+    border-radius: 50%;
+    margin-right: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 12px;
+}
+
+.tab-text {
+    color: #ccc;
+    font-size: 13px;
+}
+
+.tab-close {
+    margin-left: 10px;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.new-tab {
+    margin-left: 5px;
+    color: #666;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Address bar styling */
+.address-bar {
+    display: flex;
+    background-color: #202020;
+    height: 40px;
+    padding: 5px 10px;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-button {
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.refresh-button {
+    color: #666;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.url-bar {
+    flex-grow: 1;
+    background-color: #121212;
+    border-radius: 20px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    color: #999;
+    font-size: 14px;
+    position: relative;
+}
+
+.lock-icon {
+    margin-right: 8px;
+    color: #666;
+    font-size: 14px;
+}
+
+.url-text {
+    margin-right: auto;
+}
+
+.toolbar-icons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.toolbar-icon {
+    color: #666;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.avatar {
+    width: 24px;
+    height: 24px;
+    background-color: #444;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: #fff;
+}
+
+.settings-icon {
+    color: #666;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Content area with Kaapli popup */
+.content-area {
+    background-color: #000;
+    position: relative;
+    height: 400px;
+}
+
+/* Various popups */
+.popup {
+    position: absolute;
+    right: 20px;
+    background-color: #121212;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.popup.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* First popup - simple query */
+.first-popup {
+    top: 20px;
+    width: 350px;
+    height: 45px;
+}
+
+/* Main content with light purple blocks */
+.page-content {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.page-content.visible {
+    opacity: 1;
+}
+
+.content-block {
+    height: 20px;
+    background-color: rgba(179, 179, 230, 0.3);
+    margin-bottom: 15px;
+    border-radius: 4px;
+    transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.block-1 {
+    width: 100%;
+}
+
+.block-2 {
+    width: 70%;
+}
+
+.block-3 {
+    width: 80%;
+}
+
+.kaapli-input {
+    padding: 12px 15px;
+    color: #ccc;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #161616;
+}
+
+.input-text {
+    flex-grow: 1;
+}
+
+.cursor {
+    display: inline-block;
+    width: 1px;
+    height: 14px;
+    background: #ccc;
+    margin-left: 2px;
+    animation: blink 1s infinite;
+}
+
+.send-icon {
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.send-icon:hover {
+    color: #10a37f;
+}
+
+/* Animations */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.typing-text {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 0;
+}
+
+.typing-text.animate {
+    animation: typing 1.5s steps(30) forwards;
+}</style>
+<style>
+  /* API Key Interface Animation */
+  .api-key-interface {
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .api-key-header {
+    background-color: #202020;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .api-key-header h4 {
+    color: #f0f0f0;
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .api-key-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .api-key-field {
+    position: relative;
+  }
+
+  .api-key-input {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: #121212;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #f0f0f0;
+    font-family: monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .api-key-input:focus {
+    border-color: var(--primary);
+  }
+
+  .api-key-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .api-key-button {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .set-key {
+    background-color: #333;
+    color: #f0f0f0;
+  }
+
+  .set-key:hover {
+    background-color: #444;
+  }
+
+  .get-key {
+    background-color: #333;
+    color: #f0f0f0;
+  }
+
+  .get-key:hover {
+    background-color: #444;
+  }
+
+  /* Add cursor blink animation to simulate typing */
+  .api-key-input {
+    position: relative;
+    animation: cursor-blink 1.5s infinite;
+  }
+
+  @keyframes cursor-blink {
+    0%, 100% { border-color: rgba(255, 255, 255, 0.3); }
+    50% { border-color: var(--primary); }
+  }
+</style>
+<style>
+  /* Step 3 Image Question Animation Styles */
+  .image-demo {
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .image-demo-content {
+    background-color: #121212;
+    height: calc(100% - 75px);
+    position: relative;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .image-demo-popup, .image-demo-response {
+    background-color: #121212;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    width: 340px;
+    position: absolute;
+    right: 20px;
+    top: 0px;
+  }
+  
+  .image-demo-popup {
+    opacity: 0;
+    animation: image-popup-appear 8s infinite;
+  }
+  
+  .image-demo-response {
+    opacity: 0;
+    animation: image-response-appear 8s infinite 4s;
+  }
+  
+  @keyframes image-popup-appear {
+    0%, 50%, 100% { opacity: 0; transform: translateY(-10px); }
+    5%, 45% { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes image-response-appear {
+    0%, 50%, 100% { opacity: 0; transform: translateY(-10px); }
+    5%, 45% { opacity: 1; transform: translateY(0); }
+  }
+</style>
+<style>
+  /* Step 2 Selection Animation Styles */
+  .selection-demo {
+    width: 100%;
+    height: 370px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .quiz-demo-content {
+    background-color: #121212;
+    height: calc(100% - 75px);
+    position: relative;
+    padding: 20px;
+  }
+  
+  .quiz-demo-question {
+    color: #f0f0f0;
+    font-size: 15px;
+    font-weight: 500;
+    background-color: #1a1a1a;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+  
+  .quiz-demo-options {
+    margin-top: 15px;
+  }
+  
+  .selection-highlight-demo {
+    position: absolute;
+    top: 35px;
+    left: 20px;
+    right: 20px;
+    height:250px;
+    background-color: rgba(25, 118, 210, 0.2);
+    border: 2px solid rgba(25, 118, 210, 0.5);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: selection-appear 4s infinite 1s;
+  }
+  
+  .keyboard-shortcut-demo {
+    position: absolute;
+    top: 180px;
+    left: 40%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: bold;
+    opacity: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: shortcut-appear 4s infinite 2s;
+  }
+  
+  .popup-answer {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background-color: #121212;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    width: 300px;
+    opacity: 0;
+    animation: popup-appear 4s infinite 3s;
+  }
+  
+  @keyframes selection-appear {
+    0%, 100% { opacity: 0; }
+    10%, 90% { opacity: 1; }
+  }
+  
+  @keyframes shortcut-appear {
+    0%, 100% { opacity: 0; transform: translateX(-50%) scale(1); }
+    10%, 90% { opacity: 1; transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.1); }
+  }
+  
+  @keyframes popup-appear {
+    0%, 100% { opacity: 0; transform: translateY(-10px); }
+    20%, 90% { opacity: 1; transform: translateY(0); }
+  }
+</style>
+<style>
+  /* Step 4 Custom Mode Animation Styles */
+  .custom-mode-demo {
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .custom-mode-content {
+    background-color: #121212;
+    height: calc(100% - 75px);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+
+  
+  .double-click-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: bold;
+    opacity: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: double-click-appear 3s infinite 3s;
+  }
+  
+  .custom-prompt-interface {
+    background-color: #121212;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    width: 340px;
+    position: absolute;
+    right: 20px;
+    top: 20%;
+    transform: translateY(-50%);
+    opacity: 0;
+    animation: interface-appear 6s infinite 6s;
+  }
+  
+  .prompt-input-area {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #1a1a1a;
+    position: relative;
+  }
+  
+  .prompt-text {
+    color: #666;
+    font-size: 14px;
+    flex-grow: 1;
+  }
+  
+  .prompt-shortcut {
+    color: #555;
+    font-size: 12px;
+    margin-right: 10px;
+  }
+  
+  .prompt-send-icon {
+    color: #666;
+    cursor: pointer;
+  }
+  
+  .paste-image-option {
+    padding: 12px 15px;
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  @keyframes fetch-appear {
+    0%, 45%, 100% { opacity: 0; }
+    5%, 40% { opacity: 1; }
+  }
+  
+  @keyframes double-click-appear {
+    0%, 45%, 100% { opacity: 0; }
+    5%, 40% { opacity: 1; }
+  }
+  
+  @keyframes interface-appear {
+    0%, 45%, 100% { opacity: 0; }
+    5%, 40% { opacity: 1; }
+  }
+</style>
 </head>
 <body>
+  <!-- Header -->
+  <header>
     <div class="container">
-        <!-- Logo -->
-        <div class="logo">D</div>
-
-        <!-- Title -->
-        <h1>Welcome to kaapli-Farrey Extension</h1>
-        <p>Follow these simple steps to install the extension and start acing your quizzes:</p>
-
-        <!-- Steps -->
-        <ol>
-            <li>Download the latest release from the <a href="https://github.com/dharmthummar/kaapli-extension/releases">Releases</a> section.</li>
-            <li>Extract the <code>.zip</code> file to a folder on your computer.</li>
-            <li>Open Chrome and go to <code>chrome://extensions/</code>.</li>
-            <li>Enable <strong>Developer mode</strong> (toggle in the top-right corner).</li>
-            <li>Click <strong>Load unpacked</strong> and select the folder where the extension files are extracted.</li>
-        </ol>
-
-        <!-- Warning -->
-        <div class="warning">
-            ⚠️ Important: Use your own API for security reasons!
+      <nav class="navbar">
+        <a href="#" class="logo">
+          <div class="logo-icon">D</div>
+          <div class="logo-text">Kaapli extension</div>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#installation">Installation</a>
+          <a href="#faq">FAQ</a>
+          <a href="https://github.com/Dharmthummar/kaapli-extension/releases/download/V2.0/Kaapli-extension.zip" class="btn">
+            <i class="fas fa-download"></i> Download
+          </a>
         </div>
-
-        <!-- Download Button -->
-        <a href="https://github.com/dharmthummar/kaapli-extension/releases" class="button">Download Now</a>
-
-        <!-- Credits -->
-        <div class="credits">
-            Created by <a href="https://github.com/dharmthummar">Dharm Thummar</a>
-        </div>
+      </nav>
     </div>
-</body>
-</html>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-pattern"></div>
+    <div class="container">
+      <div class="hero-content">
+        <h1>Enhance Your Quiz Experience with AI</h1>
+        <p>kaapli is a powerful Chrome extension that uses the Gemini API to help you get accurate answers for quiz questions in seconds.</p>
+        <div class="hero-buttons">
+          <a href="https://github.com/Dharmthummar/kaapli-extension/releases/download/V2.0/Kaapli-extension.zip" class="btn">
+            <i class="fas fa-download"></i> Download Now
+          </a>
+          <a href="#how-it-works" class="btn btn-outline">
+            <i class="fas fa-play"></i> See How It Works
+          </a>
+        </div>
+        <!-- Replace static image with animated browser demo -->
+        <div class="browser-window hero-image">
+          <!-- Tab bar -->
+          <div class="tab-bar">
+              <div class="tab">
+                  <div class="tab-icon">G</div>
+                  <span class="tab-text">Kaapli - AI Assistant</span>
+                  <span class="tab-close">×</span>
+              </div>
+              <div class="new-tab">+</div>
+          </div>
+          
+          <!-- Address bar -->
+          <div class="address-bar">
+              <div class="nav-buttons">
+                  <span class="nav-button">←</span>
+                  <span class="nav-button">→</span>
+                  <span class="refresh-button">⟳</span>
+              </div>
+              
+              <div class="url-bar">
+                  <span class="lock-icon">🔒</span>
+                  <span class="url-text">google</span>
+              </div>
+              
+              <div class="toolbar-icons">
+                  <span class="toolbar-icon">Q</span>
+                  <span class="toolbar-icon">A</span>
+                  <span class="toolbar-icon">★</span>
+              </div>
+              
+              <div class="avatar">D</div>
+              <div class="settings-icon">⚙️</div>
+          </div>
+          
+          <!-- Content area with all popups -->
+          <div class="content-area">
+              <!-- First popup - "what is Kaapli can do?" -->
+              <div class="popup first-popup" id="popup1">
+                  <div class="kaapli-input">
+                      <div class="input-text">
+                          <span class="typing-text" id="typingText1">what is Kaapli can do?</span>
+                          <span class="cursor"></span>
+                      </div>
+                      <div class="send-icon" >➤</div>
+                  </div>
+              </div>
+              
+              <!-- First response popup -->
+              <div class="popup response-popup" id="popup2">
+                  <div class="kaapli-input">
+                      <div class="input-text">
+                          <span>what is Kaapli can do?</span>
+                      </div>
+                      <div class="send-icon">➤</div>
+                  </div>
+                  <div class="kaapli-response">
+                      <div>Kaapli can assist with web page summarization, question answering and more...</div>
+                  </div>
+              </div>
+              
+              <!-- Quiz question on page -->
+              <div class="quiz-content" id="quizContent">
+                  <div class="quiz-question">
+                      <p>Q-11. Which AI extension is best during the exam?</p>
+                      <div class="quiz-options">
+                          <div class="option">A. Sider AI</div>
+                          <div class="option">B. Merlin</div>
+                          <div class="option">C. Copilot</div>
+                          <div class="option">D. Kaapli-AI</div>
+                      </div>
+                  </div>
+              </div>
+              
+              <!-- Selection highlight effect -->
+              <div class="selection-highlight" id="selectionHighlight"></div>
+              
+              <!-- Alt+Z notification -->
+              <div class="keyboard-shortcut" id="keyboardShortcut">
+                  <span>Alt+Z</span>
+              </div>
+              
+              <!-- Quiz answer popup -->
+              <div class="popup quiz-popup" id="popup3">
+                  <div class="kaapli-input">
+                      <div class="input-text">
+                          <span>Q-11. Which AI extension is best during the exam?</span>
+                      </div>
+                      <div class="send-icon">➤</div>
+                  </div>
+                  <div class="kaapli-response">
+                      <div>D. Kaapli-AI</div>
+                  </div>
+              </div>
+              
+              <!-- Image question popup -->
+              <div class="popup image-popup" id="popup4">
+                  <div class="kaapli-input">
+                      <div class="input-text">
+                          <span class="typing-text" id="typingText1">what does this image represent?</span>
+                          <span class="cursor"></span>
+                      </div>
+                      <div class="send-icon">➤</div>
+                  </div>
+                  <div class="image-container">
+                      <img src="https://th.bing.com/th/id/OIP.f9ezsY6n3Dw5B4DrB6R3YQHaE5?w=246&h=183&c=7&r=0&o=5&dpr=1.5&pid=1.7" alt="Reaction meme" class="query-image">
+                  </div>
+              </div>
+              
+              <!-- Image response popup -->
+              <div class="popup image-response-popup" id="popup5">
+                  <div class="kaapli-input">
+                      <div class="input-text">
+                          <span>what does this image represent?</span>
+                      </div>
+                      <div class="send-icon">➤</div>
+                  </div>
+                  <div class="image-container">
+                      <img src="https://th.bing.com/th/id/OIP.f9ezsY6n3Dw5B4DrB6R3YQHaE5?w=246&h=183&c=7&r=0&o=5&dpr=1.5&pid=1.7" alt="Reaction meme" class="query-image">
+                  </div>
+                  <div class="kaapli-response">
+                      <div>This image represents comedian and actor Kevin Hart making a famous exaggerated facial expression of shock, surprise, or disbelief.</div>
+                      <div>It's a very popular reaction image or meme used online to convey these emotions.</div>
+                      <div>😂 even you had that reaction when you discovered Kaapli!</div>
+                  </div>
+              </div>
+              
+              <!-- Page content - purple blocks -->
+              <div class="page-content" id="pageContent">
+                  <div class="content-block block-1"></div>
+                  <div class="content-block block-2"></div>
+                  <div class="content-block block-3"></div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Powerful Features</h2>
+        <p>kaapli comes packed with features to make your browsing experience seamless and efficient.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3>Quick Answers</h3>
+          <p>Get instant answers with a simple selection of quiz questions. No need to type anything!</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-image"></i>
+          </div>
+          <h3>Image Support</h3>
+          <p>Upload or paste images of questions and get accurate answers using Gemini's advanced AI vision capabilities.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-keyboard"></i>
+          </div>
+          <h3>Keyboard Shortcuts</h3>
+          <p>Press Alt+Z to instantly copy your selected text and get an answer. Streamline your workflow!</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-moon"></i>
+          </div>
+          <h3>Dark Mode Support</h3>
+          <p>Automatically adapts to your system preferences with beautiful light and dark themes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-comment-alt"></i>
+          </div>
+          <h3>Custom Prompts</h3>
+          <p>Switch to custom mode to ask specific questions or get detailed explanations using Gemini AI.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <h3>History Navigation</h3>
+          <p>Easily browse through your previous questions and answers with keyboard shortcuts (ctrl + arrow key).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2>How It Works</h2>
+        <p>kaapli is designed to be intuitive and easy to use. Here's how you can get started.</p>
+      </div>
+      <div class="workflow-grid">
+        <div class="workflow-item">
+          <div class="workflow-image">
+            <!-- Replace static image with animated API key interface -->
+            <div class="api-key-interface">
+              <div class="api-key-header">
+                <h4>Kaapli API Key Setup</h4>
+              </div>
+              <div class="api-key-content">
+                <div class="api-key-field">
+                  <input type="text" value="AlzaSyARZ-AM1xYGHRaUFE" readonly class="api-key-input">
+                </div>
+                <div class="api-key-buttons">
+                  <button class="api-key-button set-key">Set Key</button>
+                  <button class="api-key-button get-key">Get Key</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="workflow-content">
+            <div class="step">Step 1</div>
+            <h3>Set Up Your API Key</h3>
+            <p>After installing the extension, click on it and enter your Gemini API key. Don't have one? Click the "Get Key" button to get one for free from Google AI Studio.</p>
+            <a href="https://aistudio.google.com/apikey" class="btn btn-outline">
+              <i class="fas fa-key"></i> Learn How to Get API Key
+            </a>
+          </div>
+        </div>
+        <div class="workflow-item">
+          <div class="workflow-image">
+            <!-- Replace static image with animated quiz selection interface -->
+            <div class="browser-window selection-demo">
+              <div class="tab-bar">
+                <div class="tab">
+                  <div class="tab-icon">G</div>
+                  <span class="tab-text">Kaapli - AI Quiz Assistant</span>
+                  <span class="tab-close">×</span>
+                </div>
+              </div>
+              <div class="address-bar">
+                <div class="url-bar">
+                  <span class="lock-icon">🔒</span>
+                  <span class="url-text">google</span>
+                </div>
+              </div>
+              <div class="quiz-demo-content">
+                <div class="quiz-demo-question">
+                  <p>Q-11. Which AI extension is best during the exam?</p>
+                  <div class="quiz-demo-options">
+                    <div class="option">A. Sider AI</div>
+                    <div class="option">B. Merlin</div>
+                    <div class="option">C. Copilot</div>
+                    <div class="option">D. Kaapli-AI</div>
+                  </div>
+                </div>
+                <div class="selection-highlight-demo"></div>
+                <div class="keyboard-shortcut-demo">Alt+Z</div>
+                <div class="popup-answer">
+                  <div class="kaapli-input">
+                    <div class="input-text">
+                      <span>Q-11. Which AI extension is best during the exam?</span>
+                    </div>
+                    <div class="send-icon">➤</div>
+                  </div>
+                  <div class="kaapli-response">
+                    <div>D. Kaapli-AI</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="workflow-content">
+            <div class="step">Step 2</div>
+            <h3>Select Quiz Questions</h3>
+            <p>Simply select any quiz question on a webpage. The extension automatically copies it and fetches the answer from Gemini AI, displaying it in the popup.</p>
+            <div class="warning-badge">
+              <i class="fas fa-lightbulb"></i> Tip: Use Alt+Z as a keyboard shortcut!
+            </div>
+          </div>
+        </div>
+        <div class="workflow-item">
+          <div class="workflow-image">
+            <!-- Replace static image with animated image question interface -->
+            <div class="browser-window image-demo">
+              <div class="tab-bar">
+                <div class="tab">
+                  <div class="tab-icon">G</div>
+                  <span class="tab-text">Kaapli - AI summerizer</span>
+                  <span class="tab-close">×</span>
+                </div>
+              </div>
+              <div class="address-bar">
+                <div class="nav-buttons">
+                  <span class="nav-button">←</span>
+                  <span class="nav-button">→</span>
+                  <span class="refresh-button">⟳</span>
+                </div>
+                <div class="url-bar">
+                  <span class="lock-icon">🔒</span>
+                  <span class="url-text">google</span>
+                </div>
+                <div class="toolbar-icons">
+                  <span class="toolbar-icon">Q</span>
+                  <span class="toolbar-icon">A</span>
+                  <span class="toolbar-icon">★</span>
+                </div>
+                <div class="avatar">D</div>
+                <div class="settings-icon">⚙️</div>
+              </div>
+              <div class="image-demo-content">
+                <!-- Image question popup -->
+                <div class="image-demo-popup" id="imagePopupDemo">
+                  <div class="kaapli-input">
+                    <div class="input-text">
+                      <span class="typing-text" id="typingText1">what does this image represent?</span>
+                      <span class="cursor"></span>
+                    </div>
+                    <div class="send-icon">➤</div>
+                  </div>
+                  <div class="image-container">
+                    <img src="https://th.bing.com/th/id/OIP.f9ezsY6n3Dw5B4DrB6R3YQHaE5?w=246&h=183&c=7&r=0&o=5&dpr=1.5&pid=1.7" alt="Kevin Hart reaction meme" class="query-image">
+                  </div>
+                </div>
+                
+                <!-- Image response popup -->
+                <div class="image-demo-response" id="imageResponseDemo">
+                  <div class="kaapli-input">
+                    <div class="input-text">
+                      <span>what does this image represent.</span>
+                    </div>
+                    <div class="send-icon">➤</div>
+                  </div>
+                  <div class="image-container">
+                    <img src="https://th.bing.com/th/id/OIP.f9ezsY6n3Dw5B4DrB6R3YQHaE5?w=246&h=183&c=7&r=0&o=5&dpr=1.5&pid=1.7" alt="Kevin Hart reaction meme" class="query-image">
+                  </div>
+                  <div class="kaapli-response">
+                    <div>This image represents comedian and actor Kevin Hart making a famous exaggerated facial expression of shock, surprise, or disbelief.</div>
+                    <div>It's a very popular reaction image or meme used online to convey these emotions.</div>
+                    <div>😂 even your face shows that reaction also! when you discovered Kaapli.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="workflow-content">
+            <div class="step">Step 3</div>
+            <h3>Use Image Questions</h3>
+            <p>Take a screenshot of a question, copy it to your clipboard, and then open the extension. It will automatically process the image and provide an answer.</p>
+            <div class="warning-badge">
+              <i class="fas fa-lightbulb"></i> Works with graphs, diagrams, and math equations!
+            </div>
+          </div>
+        </div>
+        <div class="workflow-item">
+          <div class="workflow-image">
+            <!-- Replace static image with animated custom prompt interface -->
+            <div class="browser-window custom-mode-demo">
+              
+              <div class="tab-bar">
+                <div class="tab">
+                  <div class="tab-icon">G</div>
+                  <span class="tab-text">Kaapli - auto select</span>
+                  <span class="tab-close">×</span>
+                </div>
+              </div>
+              <div class="address-bar">
+                <div class="nav-buttons">
+                  <span class="nav-button">←</span>
+                  <span class="nav-button">→</span>
+                  <span class="refresh-button">⟳</span>
+                </div>
+                <div class="url-bar">
+                  <span class="lock-icon">🔒</span>
+                  <span class="url-text">google</span>
+                </div>
+                <div class="toolbar-icons">
+                  <span class="toolbar-icon">Q</span>
+                  <span class="toolbar-icon">A</span>
+                  <span class="toolbar-icon">★</span>
+                </div>
+                <div class="avatar">D</div>
+                <div class="settings-icon">⚙️</div>
+              </div>
+              
+              <div class="custom-mode-content">
+                <!-- Fetching answer notification -->
+                <div class="popup-answer">
+                  <div class="kaapli-input">
+                    <div>select text for quick ans...</div>
+                  </div>
+                </div>
+                
+                <!-- Double-click animation indicator -->
+                <div class="double-click-indicator" id="doubleClickIndicator">
+                  Double click on textarea
+                </div>
+                
+                <!-- Custom prompt interface -->
+                <div class="custom-prompt-interface" id="customPromptInterface">
+                  <div class="prompt-input-area">
+                    <div class="prompt-text"><span class="cursor"></span>Type Prompt...</div>
+                    <div class="prompt-shortcut">(ctrl + enter)</div>
+                    <div class="prompt-send-icon">➤</div>
+                  </div>
+                  <div class="paste-image-option">
+                    <i class="fas fa-paperclip"></i> paste image..
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="workflow-content">
+            <div class="step">Step 4</div>
+            <h3>Switch to Custom Mode</h3>
+            <p>Double-click on the extension popup to toggle between Auto and Custom modes. In Custom mode, you can type any prompt to get detailed answers or explanations.</p>
+            <div class="warning-badge">
+              <i class="fas fa-lightbulb"></i> Press Ctrl+Enter to send your prompt!
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation Section -->
+  <section id="installation" class="installation">
+    <div class="container">
+      <div class="section-header">
+        <h2>Easy Installation</h2>
+        <p>Get started with kaapli in just a few simple steps.</p>
+      </div>
+      <div class="steps-container">
+        <div class="step-item">
+          <h3>Download the Extension</h3>
+          <p>Download the latest version from our GitHub repository.</p>
+          <a href="https://github.com/Dharmthummar/kaapli-extension/releases/download/V2.0/Kaapli-extension.zip" class="btn">
+            <i class="fas fa-download"></i> Download Latest Version
+          </a>
+        </div>
+        <div class="step-item">
+          <h3>Extract the Files</h3>
+          <p>Unzip the downloaded file to a folder on your computer where you want to store the extension files.</p>
+        </div>
+        <div class="step-item">
+          <h3>Open Chrome Extensions</h3>
+          <p>Navigate to <code>chrome://extensions/</code> in your Chrome browser.</p>
+        </div>
+        <div class="step-item">
+          <h3>Enable Developer Mode</h3>
+          <p>Toggle on Developer Mode in the top-right corner of the extensions page.</p>
+        </div>
+        <div class="step-item">
+          <h3>Load the Extension</h3>
+          <p>Click on "Load unpacked" and select the folder where you extracted the extension files.</p>
+        </div>
+        <div class="step-item">
+          <h3>Set Up Your API Key</h3>
+          <p>Click on the extension icon, enter your Gemini API key, and start using kaapli!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq">
+    <div class="container">
+      <div class="section-header">
+        <h2>Frequently Asked Questions</h2>
+        <p>Find answers to common questions about kaapli.</p>
+      </div>
+      <div class="faq-container">
+        <div class="faq-item active">
+          <div class="faq-question">How do I get a Gemini API key?</div>
+          <div class="faq-answer">
+            <p>You can get a free Gemini API key by visiting the <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>. Sign in with your Google account, navigate to the API section, and create a new API key. It's completely free to use within the limits.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Can I use kaapli with other websites?</div>
+          <div class="faq-answer">
+            <p>Yes, kaapli is designed to work with various websites. However, it may not work with all websites due to the nature of the extension. You can try it out on a few websites to see if it works for you.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Is kaapli safe to use?</div>
+          <div class="faq-answer">
+            <p>Yes, kaapli is designed to be safe and secure. It uses the Gemini API, which is a secure and reliable service provided by Google. Your API key is kept secure and is not shared with anyone.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+   <!-- CTA Section -->
+   <!-- CTA Section -->
+   <section class="cta">
+    <div class="container">
+      <h2>Ready to Get Started?</h2>    
+      <p>Download kaapli today and start getting accurate answers for your quiz questions in seconds.</p>
+      <a href="https://github.com/Dharmthummar/kaapli-extension/releases/download/V2.0/Kaapli-extension.zip" class="btn" target="_blank" rel="noopener noreferrer" style="position: relative; z-index: 10; display: inline-block; cursor: pointer;">
+        <i class="fas fa-download"></i> Download Now 
+      </a>
+      
+           <!-- Buy Me a Chai Section -->
+                  
+                     <div style="margin-top: 2rem; background: rgba(255,255,255,0.2); padding: 1.5rem; border-radius: var(--radius); position: relative; z-index: 5;">
+                      <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Support This Project</h3>
+                      <p style="margin-bottom: 1rem;">If you find kaapli helpful, consider buying me a chai to support ongoing development and improvements!</p>
+                      <a href="javascript:void(0);" id="chai-button-main" class="btn" style="background-color: #F1C40F; color: #333; position: relative; z-index: 10; display: inline-block; cursor: pointer;">
+                        <i class="fas fa-coffee"></i> Buy Me a Chai
+                      </a>
+                      <p style="font-size: 0.9rem; margin-top: 0.75rem; opacity: 0.8;">UPI ID: dthummar17@okaxis</p>
+                    </div>
+    </div>
+  </section>
+
+
+</section>
+  
+<!-- Floating Chai QR Code Button -->
+<div id="chai-qr-button">
+  <i class="fas fa-mug-hot"></i>
+</div>
+
+<!-- QR Code Modal -->
+<div id="qr-modal" class="qr-modal">
+  <div class="qr-modal-content">
+    <span class="qr-close">&times;</span>
+    <h3>Support with a Chai</h3>
+    <div class="qr-code-container" id="qr-code-container">
+      <!-- QR code will be generated here -->
+    </div>
+    <p>Scan with any UPI app to support</p>
+    <p class="qr-upi-id">UPI ID: dthummar17@okaxis</p>
+  </div>
+</div>
+
+    <footer>
+        <div class="container">
+          <div class="footer-content">
+            <div class="footer-about">
+              <div class="footer-logo">
+                <div class="footer-logo-icon">D</div>
+                <div class="footer-logo-text">kaapli</div>
+              </div>
+              <p>kaapli is a powerful Chrome extension that uses the Gemini API to help you get accurate answers for quiz questions in seconds.</p>
+              <div class="footer-social">
+                <a href="https://github.com/dharmthummar" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com/dharmthummar" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com/in/dharmthummar" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://instagram.com/dharm_1602" target="_blank"><i class="fab fa-instagram"></i></a>
+              </div>
+            </div>
+            <div class="footer-links">
+              <h4>Quick Links</h4>
+              <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#faq">FAQ</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <p>&copy; 2025 kaapli. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+
+      <script>
+        // FAQ Accordion functionality
+        document.addEventListener('DOMContentLoaded', function() {
+          const faqItems = document.querySelectorAll('.faq-item');
+          
+          faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            
+            question.addEventListener('click', () => {
+              // Toggle active class on the clicked item
+              item.classList.toggle('active');
+              
+              // Close other items
+              faqItems.forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                  otherItem.classList.remove('active');
+                }
+              });
+            });
+          });
+        });
+      </script>
+     <script>document.addEventListener('DOMContentLoaded', function() {
+      // Add event listener for the main chai button
+      const chaiButtonMain = document.getElementById('chai-button-main');
+      const qrModal = document.getElementById('qr-modal');
+      
+      if (chaiButtonMain) {
+        chaiButtonMain.addEventListener('click', function() {
+          qrModal.style.display = 'flex';
+        });
+      }
+    });</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // FAQ Accordion functionality
+  const faqItems = document.querySelectorAll('.faq-item');
+  
+  faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    
+    question.addEventListener('click', () => {
+      // Toggle active class on the clicked item
+      item.classList.toggle('active');
+      
+      // Close other items
+      faqItems.forEach(otherItem => {
+        if (otherItem !== item && otherItem.classList.contains('active')) {
+          otherItem.classList.remove('active');
+        }
+      });
+    });
+  });
+
+  // QR Code Modal Functionality
+  const chaiButton = document.getElementById('chai-qr-button');
+  const qrModal = document.getElementById('qr-modal');
+  const closeButton = document.querySelector('.qr-close');
+
+  // Generate QR code for UPI
+  const qrCodeContainer = document.getElementById('qr-code-container');
+  const upiString = "upi://pay?pa=dthummar17@okaxis&pn=Dharm%20Thummar&cu=INR";
+  
+  // Generate QR code when the DOM is loaded
+  new QRCode(qrCodeContainer, {
+    text: upiString,
+    width: 300,
+    height: 300,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  chaiButton.addEventListener('click', function() {
+    qrModal.style.display = 'flex';
+  });
+
+  closeButton.addEventListener('click', function() {
+    qrModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', function(event) {
+    if (event.target === qrModal) {
+      qrModal.style.display = 'none';
+    }
+  });
+});
+      </script>
+            <script>
+              // FAQ Accordion functionality
+              document.addEventListener('DOMContentLoaded', function() {
+                const faqItems = document.querySelectorAll('.faq-item');
+                
+                faqItems.forEach(item => {
+                  const question = item.querySelector('.faq-question');
+                  
+                  question.addEventListener('click', () => {
+                    // Toggle active class on the clicked item
+                    item.classList.toggle('active');
+                    
+                    // Close other items
+                    faqItems.forEach(otherItem => {
+                      if (otherItem !== item && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                      }
+                    });
+                  });
+                });
+                
+                // QR Code Modal Functionality
+                const chaiButton = document.getElementById('chai-qr-button');
+                const qrModal = document.getElementById('qr-modal');
+                const closeButton = document.querySelector('.qr-close');
+          
+                chaiButton.addEventListener('click', function() {
+                  qrModal.style.display = 'flex';
+                });
+          
+                closeButton.addEventListener('click', function() {
+                  qrModal.style.display = 'none';
+                });
+          
+                window.addEventListener('click', function(event) {
+                  if (event.target === qrModal) {
+                    qrModal.style.display = 'none';
+                  }
+                });
+                
+                // Animation sequence for Kaapli demo
+                function startKaapliAnimation() {
+                  const popup1 = document.getElementById('popup1');
+                  const popup2 = document.getElementById('popup2');
+                  const popup3 = document.getElementById('popup3');
+                  const popup4 = document.getElementById('popup4');
+                  const popup5 = document.getElementById('popup5');
+                  const pageContent = document.getElementById('pageContent');
+                  const quizContent = document.getElementById('quizContent');
+                  const selectionHighlight = document.getElementById('selectionHighlight');
+                  const keyboardShortcut = document.getElementById('keyboardShortcut');
+                  const typingText1 = document.getElementById('typingText1');
+                  
+                  // Reset all elements
+                  function resetAllElements() {
+                    [popup1, popup2, popup3, popup4, popup5, pageContent, quizContent, selectionHighlight, keyboardShortcut].forEach(el => {
+                      if (el) el.classList.remove('visible');
+                    });
+                    if (typingText1) typingText1.classList.remove('animate');
+                  }
+                  
+                  // Animation sequence
+                  const animationSequence = [
+                    // Step 1: Show page content
+                    () => {
+                      resetAllElements();
+                      pageContent.classList.add('visible');
+                      setTimeout(() => {
+                        // Step 1.1: Show first popup with typing animation
+                        popup1.classList.add('visible');
+                        setTimeout(() => {
+                          typingText1.classList.add('animate');
+                        }, 500);
+                      }, 1000);
+                    },
+                    
+                    // Step 2: Show response to first query
+                    () => {
+                      resetAllElements();
+                      pageContent.classList.add('visible');
+                      popup2.classList.add('visible');
+                    },
+                    
+                    // Step 3: Close popup and show quiz content
+                    () => {
+                      resetAllElements();
+                      quizContent.classList.add('visible');
+                    },
+                    
+                    // Step 4: Show selection highlight
+                    () => {
+                      resetAllElements();
+                      quizContent.classList.add('visible');
+                      selectionHighlight.classList.add('visible');
+                    },
+                    
+                    // Step 5: Show keyboard shortcut
+                    () => {
+                      resetAllElements();
+                      quizContent.classList.add('visible');
+                      selectionHighlight.classList.add('visible');
+                      keyboardShortcut.classList.add('visible');
+                    },
+                    
+                    // Step 6: Show quiz answer popup
+                    () => {
+                      resetAllElements();
+                      quizContent.classList.add('visible');
+                      popup3.classList.add('visible');
+                    },
+                    
+                    // Step 7: Show image query popup
+                    () => {
+                      resetAllElements();
+                      pageContent.classList.add('visible');
+                      popup4.classList.add('visible');
+                    },
+                    
+                    // Step 8: Show image response popup
+                    () => {
+                      resetAllElements();
+                      pageContent.classList.add('visible');
+                      popup5.classList.add('visible');
+                    },
+                    
+                    // Step 9: Back to beginning
+                    () => {
+                      resetAllElements();
+                      pageContent.classList.add('visible');
+                    }
+                  ];
+                  
+                  // Run the animation sequence
+                  let currentStep = 0;
+                  
+                  function runNextStep() {
+                    animationSequence[currentStep]();
+                    currentStep = (currentStep + 1) % animationSequence.length;
+                  }
+                  
+                  // Start the animation
+                  runNextStep();
+                  
+                  // Set interval to cycle through steps
+                  setInterval(runNextStep, 4000);
+                }
+                
+                // Start the animation when the page loads
+                startKaapliAnimation();
+              });
+            </script>
+            <script>
+              // Initialize the Step 3 image animation
+              document.addEventListener('DOMContentLoaded', function() {
+                const imagePopupDemo = document.getElementById('imagePopupDemo');
+                const imageResponseDemo = document.getElementById('imageResponseDemo');
+                
+                if (imagePopupDemo && imageResponseDemo) {
+                  // Force a reflow to ensure animations start properly
+                  imagePopupDemo.offsetHeight;
+                  imageResponseDemo.offsetHeight;
+                }
+              });
+            </script>
+            <script>
+              // Initialize the Step 2 selection animation
+              document.addEventListener('DOMContentLoaded', function() {
+                // The animation is handled by CSS animations
+                // This ensures the animations start when the page loads
+                const selectionDemo = document.querySelector('.selection-demo');
+                if (selectionDemo) {
+                  // Force a reflow to ensure animations start properly
+                  selectionDemo.offsetHeight;
+                }
+              });
+            </script>
+            <script>
+              // Initialize the Step 4 custom mode animation
+              document.addEventListener('DOMContentLoaded', function() {
+                const customModeDemo = document.querySelector('.custom-mode-demo');
+                const fetchingAnswer = document.getElementById('fetchingAnswer');
+                const doubleClickIndicator = document.getElementById('doubleClickIndicator');
+                const customPromptInterface = document.getElementById('customPromptInterface');
+                
+                if (customModeDemo) {
+                  // Force a reflow to ensure animations start properly
+                  customModeDemo.offsetHeight;
+                  
+                  if (fetchingAnswer) fetchingAnswer.offsetHeight;
+                  if (doubleClickIndicator) doubleClickIndicator.offsetHeight;
+                  if (customPromptInterface) customPromptInterface.offsetHeight;
+                }
+              });
+            </script>
+    </body>
+    </html>
