@@ -1,4 +1,4 @@
-# Kaapli - AI Quiz solver extension
+# Kaapli - AI Quiz solver extension  [![LINK](https://img.shields.io/badge/Visit%20Website-blue)](https://dharmthummar.github.io/kaapli-extension/)
 Kaapli is a powerful Chrome extension that leverages the Gemini API to enhance your quiz experience with intelligent assistance.
 
 ## ⚠️ Ethics Disclaimer
