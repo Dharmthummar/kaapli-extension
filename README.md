@@ -20,14 +20,14 @@ The extension should be used responsibly as a learning aid, not as a substitute 
 
 ## How It Works
 1. **Select quiz text** or take a screenshot of a question
-2. **Press Alt+K** (or your custom shortcut) to activate
+2. **Press Alt+z** (or your custom shortcut) to activate
 3. **Get instant answers** powered by Google's Gemini AI
 
 ## Installation
 1. Download the extension from the releases page
 2. Add to Chrome from chrome://extensions (Developer Mode)
 3. Enter your Gemini API key on first use
-4. Start using with Alt+K shortcut
+4. Start using with Alt+z shortcut
 
 ## Requirements
 - Google Chrome or Chromium-based browser
