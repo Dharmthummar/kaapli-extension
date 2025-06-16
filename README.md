@@ -12,7 +12,7 @@ The extension should be used responsibly as a learning aid, not as a substitute 
 
 ## Features
 - **Instant Quiz Answers**: Get accurate answers for quiz questions in seconds
-- **Smart Selection**: Simply select quiz text and press Alt+K to get answers
+- **Smart Selection**: Simply select quiz text and press Alt+z to get answers
 - **Image Analysis**: Supports image-based questions through screenshot or paste
 - **Custom Mode**: Ask your own questions with a double-click activation
 - **Browser Integration**: Seamlessly works with your browser's appearance settings
