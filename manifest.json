@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Kaapli - AI Study Helper",
-    "version": "1.2",
-    "description": "An educational assistant that uses Gemini AI to explain quiz questions and concepts from text or images.",
+    "name": "kaapli-Farrey",
+    "version": "1.0.0",
+    "description": "Get correct answers for quiz questions using Gemini API. This extension is developed by DharmThummar. Disclaimer: This extension is only for educational purposes. I am not responsible for any misuse of this extension.",
     "permissions": [
         "activeTab",
         "clipboardRead",
@@ -10,7 +10,7 @@
         "storage"
     ],
     "action": {
-        "default_popup": "popup.html",
+        "default_popup": "kaapli.html",
         "default_icon": {
             "16": "icon.png",
             "48": "icon.png",
@@ -23,6 +23,9 @@
         "48": "icon.png",
         "128": "icon.png"
     },
+     "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'"},
+      
     "host_permissions": [
         "https://generativelanguage.googleapis.com/*"
     ],
@@ -39,4 +42,6 @@
             "js": ["content.js"]
         }
     ]
+    
 }
+
