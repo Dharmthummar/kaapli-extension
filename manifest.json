@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Scientific Calculator",
-    "version": "1.1",
-    "description": "A simple scientific calculator for your daily needs.",
+    "name": "Kaapli - AI Study Helper",
+    "version": "1.2",
+    "description": "An educational assistant that uses Gemini AI to explain quiz questions and concepts from text or images.",
     "permissions": [
         "activeTab",
         "clipboardRead",

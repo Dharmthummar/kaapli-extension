@@ -1,236 +1,113 @@
-let currentInput = '0';
-let previousInput = null;
-let operator = null;
-let waitingForSecondOperand = false;
-let geminiAnswer = null; // To store the fetched answer
-let isFetching = false;
-
 document.addEventListener('DOMContentLoaded', function () {
-    const display = document.getElementById('display');
-    const apiKeyOverlay = document.getElementById('api-key-overlay');
+    const setupCard = document.getElementById('setup-card');
+    const mainCard = document.getElementById('main-card');
     const apiKeyInput = document.getElementById('api-key-input');
-    const saveApiKeyButton = document.getElementById('save-api-key');
-    const resultContent = document.getElementById('result-content');
-    const resultOverlay = document.getElementById('result-overlay');
-    const closeResultBtn = document.getElementById('close-result');
+    const saveKeyBtn = document.getElementById('save-api-key');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const resetKeyBtn = document.getElementById('reset-key');
+    const resultArea = document.getElementById('result-area');
+    const statusMsg = document.getElementById('status-msg');
 
-    // Check for API key on startup
-    chrome.storage.local.get(['apiKey'], function (result) {
-        if (!result.apiKey) {
-            apiKeyOverlay.style.display = 'flex';
-        } else {
-            // Silently fetch answer if key exists
-            fetchAnswer();
-        }
-    });
+    // Initialize state
+    checkApiKey();
 
-    saveApiKeyButton.addEventListener('click', function () {
+    saveKeyBtn.addEventListener('click', () => {
         const key = apiKeyInput.value.trim();
         if (key) {
-            chrome.storage.local.set({ apiKey: key }, function () {
-                apiKeyOverlay.style.display = 'none';
-                fetchAnswer();
+            chrome.storage.local.set({ apiKey: key }, () => {
+                checkApiKey();
+                statusMsg.textContent = "API Key saved!";
+                setTimeout(() => statusMsg.textContent = "", 2000);
             });
         }
     });
 
-    closeResultBtn.addEventListener('click', () => {
-        resultOverlay.style.display = 'none';
-    });
-
-    // Calculator Logic
-    document.querySelectorAll('button').forEach(button => {
-        button.addEventListener('click', () => {
-            const action = button.dataset.action;
-            const value = button.dataset.value;
-
-            if (button.id === 'save-api-key' || button.id === 'close-result') return;
-
-            if (!action) {
-                inputDigit(value);
-            } else if (action === 'operator') {
-                handleOperator(value);
-            } else if (action === 'calculate') {
-                calculate();
-            } else if (action === 'clear') {
-                clear();
-            } else if (action === 'decimal') {
-                inputDecimal();
-            } else if (action === 'percent') {
-                inputPercent();
-            } else if (action === 'toggle-sign') {
-                toggleSign();
-            }
-            updateDisplay();
+    resetKeyBtn.addEventListener('click', () => {
+        chrome.storage.local.remove(['apiKey'], () => {
+            checkApiKey();
+            resultArea.textContent = "Ready to help! Copy a question or image and click Analyze.";
         });
     });
 
-    // Secret Triggers
-    // 1. Double click on display to show result overlay
-    document.getElementById('display-container').addEventListener('dblclick', () => {
-        showResult();
-    });
+    analyzeBtn.addEventListener('click', fetchAnswer);
 
-    // 2. Long press on AC to reset API key (optional)
-    let acTimer;
-    const acBtn = document.querySelector('button[data-action="clear"]');
-    acBtn.addEventListener('mousedown', () => {
-        acTimer = setTimeout(() => {
-            chrome.storage.local.remove(['apiKey'], () => {
-                location.reload();
-            });
-        }, 3000); // 3 seconds
-    });
-    acBtn.addEventListener('mouseup', () => clearTimeout(acTimer));
-    acBtn.addEventListener('mouseleave', () => clearTimeout(acTimer));
-
-    function inputDigit(digit) {
-        if (waitingForSecondOperand) {
-            currentInput = digit;
-            waitingForSecondOperand = false;
-        } else {
-            currentInput = currentInput === '0' ? digit : currentInput + digit;
-        }
+    function checkApiKey() {
+        chrome.storage.local.get(['apiKey'], (result) => {
+            if (result.apiKey) {
+                setupCard.classList.add('hidden');
+                mainCard.classList.remove('hidden');
+            } else {
+                setupCard.classList.remove('hidden');
+                mainCard.classList.add('hidden');
+            }
+        });
     }
-
-    function inputDecimal() {
-        if (!currentInput.includes('.')) {
-            currentInput += '.';
-        }
-    }
-
-    function clear() {
-        currentInput = '0';
-        previousInput = null;
-        operator = null;
-        waitingForSecondOperand = false;
-    }
-
-    function toggleSign() {
-        currentInput = (parseFloat(currentInput) * -1).toString();
-    }
-
-    function inputPercent() {
-        currentInput = (parseFloat(currentInput) / 100).toString();
-    }
-
-    function handleOperator(nextOperator) {
-        const inputValue = parseFloat(currentInput);
-
-        if (operator && waitingForSecondOperand) {
-            operator = nextOperator;
-            return;
-        }
-
-        if (previousInput === null) {
-            previousInput = inputValue;
-        } else if (operator) {
-            const result = performCalculation(operator, previousInput, inputValue);
-            currentInput = String(result);
-            previousInput = result;
-        }
-
-        waitingForSecondOperand = true;
-        operator = nextOperator;
-    }
-
-    function calculate() {
-        // SECRET: If calculation is "0 / 0", show result
-        if (previousInput === 0 && operator === '/' && currentInput === '0') {
-            showResult();
-            clear();
-            return;
-        }
-
-        // SECRET: If user just types "=" without operation, show result if ready
-        if (previousInput === null && operator === null) {
-             // Maybe just show it? No, let's stick to the /0 trick or double click
-        }
-
-        if (operator === null || waitingForSecondOperand) {
-            return;
-        }
-
-        const inputValue = parseFloat(currentInput);
-        const result = performCalculation(operator, previousInput, inputValue);
-        currentInput = String(result);
-        previousInput = null;
-        operator = null;
-        waitingForSecondOperand = false;
-    }
-
-    function performCalculation(op, first, second) {
-        if (op === '+') return first + second;
-        if (op === '-') return first - second;
-        if (op === '*') return first * second;
-        if (op === '/') return first / second;
-        return second;
-    }
-
-    function updateDisplay() {
-        display.value = currentInput;
-    }
-
-    function showResult() {
-        if (geminiAnswer) {
-            resultContent.textContent = geminiAnswer;
-        } else if (isFetching) {
-            resultContent.textContent = "Fetching answer...";
-        } else {
-            resultContent.textContent = "No answer available or clipboard empty.";
-        }
-        resultOverlay.style.display = 'flex';
-    }
-
-    // --- Gemini Logic ---
 
     async function fetchAnswer() {
-        isFetching = true;
+        resultArea.textContent = "Reading clipboard...";
+        statusMsg.textContent = "Processing...";
+        analyzeBtn.disabled = true;
 
         try {
-            // Check for image first
+            // 1. Try to read Image or Text from Clipboard
+            // Note: navigator.clipboard.read() requires user gesture and permission (usually granted in extension popup)
             const clipboardItems = await navigator.clipboard.read();
             let imageBlob = null;
             let text = null;
 
             for (const item of clipboardItems) {
-                if (item.types.includes('image/png') || item.types.includes('image/jpeg')) {
-                    const type = item.types.find(t => t.startsWith('image/'));
-                    imageBlob = await item.getType(type);
+                // Check for images
+                const imageType = item.types.find(t => t.startsWith('image/'));
+                if (imageType) {
+                    imageBlob = await item.getType(imageType);
                 }
+
+                // Check for text
                 if (item.types.includes('text/plain')) {
                     const blob = await item.getType('text/plain');
                     text = await blob.text();
                 }
             }
 
-            // Fallback to readText if no clipboard items found (some browsers restriction)
-            // But read() requires permission. readText() is simpler.
+            // Fallback for text if read() didn't return text explicitly or failed partially
             if (!text && !imageBlob) {
-                try {
+                 try {
                      text = await navigator.clipboard.readText();
-                } catch (e) {
-                    console.log("readText failed or empty", e);
-                }
+                 } catch (e) {
+                     console.log("readText fallback failed or empty");
+                 }
             }
 
             if (!text && !imageBlob) {
-                console.log("Clipboard empty");
-                isFetching = false;
+                resultArea.textContent = "Clipboard is empty. Please copy some text or an image first.";
+                analyzeBtn.disabled = false;
+                statusMsg.textContent = "";
                 return;
             }
 
+            // Display what we found
+            if (imageBlob && text) resultArea.textContent = "Found Image and Text. Analyzing...";
+            else if (imageBlob) resultArea.textContent = "Found Image. Analyzing...";
+            else resultArea.textContent = `Found Text: "${text.substring(0, 50)}...". Analyzing...`;
+
+            // 2. Call Gemini
             callGeminiApi(text, imageBlob);
 
         } catch (err) {
-            console.error('Failed to read clipboard: ', err);
-            // Fallback for Firefox or if read() is not supported/permitted
+            console.error('Clipboard error:', err);
+            // Fallback: try simple readText
             try {
                 const text = await navigator.clipboard.readText();
-                if (text) callGeminiApi(text, null);
+                if (text) {
+                     resultArea.textContent = `Found Text: "${text.substring(0, 50)}...". Analyzing...`;
+                     callGeminiApi(text, null);
+                } else {
+                    throw new Error("No text found");
+                }
             } catch (e) {
-                console.error("Fallback readText also failed", e);
-                isFetching = false;
+                resultArea.textContent = "Error reading clipboard. Please ensure you have copied content.";
+                analyzeBtn.disabled = false;
+                statusMsg.textContent = "";
             }
         }
     }
@@ -239,17 +116,19 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.local.get(['apiKey'], function (result) {
             const apiKey = result.apiKey;
             if (!apiKey) {
-                isFetching = false;
+                resultArea.textContent = "Error: API Key missing.";
+                analyzeBtn.disabled = false;
                 return;
             }
 
             const parts = [];
-            const prefix = "Provide only the single correct answer for this multiple choice question. Do not include explanations or additional options. If the question is unclear, respond with 'Invalid question'.\n";
+            // Educational Prompt
+            const prefix = "You are a helpful study assistant. Please explain the answer to this question clearly. If it's a multiple choice question, indicate the correct option and explain why it is correct.\nQuestion: ";
 
             if (text) {
                 parts.push({ "text": prefix + text });
             } else if (imageBlob) {
-                parts.push({ "text": prefix + "Analyze this image and provide the answer." });
+                parts.push({ "text": "Please analyze this image and explain the educational concept or solve the problem shown. " + prefix });
             }
 
             if (imageBlob) {
@@ -288,18 +167,19 @@ document.addEventListener('DOMContentLoaded', function () {
             let ans = "";
             try {
                 ans = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!ans) ans = "No answer found.";
+                if (!ans) ans = "No answer generated.";
             } catch (e) {
-                ans = "Error parsing response.";
+                ans = "Error parsing API response.";
             }
-            geminiAnswer = ans;
+            resultArea.textContent = ans;
         })
         .catch(error => {
-            console.error('Error calling Gemini API:', error);
-            geminiAnswer = "API Error.";
+            console.error('API Error:', error);
+            resultArea.textContent = "Failed to connect to Gemini API.";
         })
         .finally(() => {
-            isFetching = false;
+            analyzeBtn.disabled = false;
+            statusMsg.textContent = "Done.";
         });
     }
 });
