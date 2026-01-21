@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>kaapli-Farrey</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      
+      /* Dark theme variables */
+      --bg-color-dark: rgba(58, 57, 57, 0.87);
+      --text-color-dark: rgba(205, 204, 204, 0.8);
+      --text-color-muted-dark: rgba(205, 204, 204, 0.5);
+      --input-bg-dark: rgba(70, 70, 70, 0.87);
+      --container-bg-dark: rgba(50, 50, 50, 0.95);
+      --border-color-dark: rgba(100, 100, 100, 0.5);
+      --button-bg-dark: rgba(80, 80, 80, 0.6);
+      --button-hover-dark: rgba(100, 100, 100, 0.8);
+      --scrollbar-thumb-dark: rgba(120, 120, 120, 0.5);
+      --scrollbar-track-dark: rgba(50, 50, 50, 0.3);
+      --tooltip-bg-dark: rgba(40, 40, 40, 0.9);
+      
+      /* Light theme variables - adjusted for pure white background and darker text */
+      --bg-color-light: rgba(255, 255, 255, 1);
+      --text-color-light: rgba(0, 0, 0, 0.9);
+      --text-color-muted-light: rgba(40, 40, 40, 0.8);
+      --input-bg-light: rgba(255, 255, 255, 1);
+      --container-bg-light: rgba(245, 245, 245, 1);
+      --border-color-light: rgba(200, 200, 200, 0.8);
+      --button-bg-light: rgba(230, 230, 230, 1);
+      --button-hover-light: rgba(210, 210, 210, 1);
+      --scrollbar-thumb-light: rgba(160, 160, 160, 0.8);
+      --scrollbar-track-light: rgba(230, 230, 230, 0.8);
+      --tooltip-bg-light: rgba(60, 60, 60, 1);
+    }
+
+    html, body {
+      width: max-content;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: none;
+      border: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #answer {
+      width: 100%;
+      height: 23px;
+      border: none;
+      font-size: 10px;
+      resize: none;
+      overflow: hidden;
+      outline: none;
+      padding: 2px;
+      box-sizing: border-box;
+      position: relative;
+      transition: height 0.2s ease;
+    }
+
+    #answer.error {
+      font-weight: bold;
+    }
+
+    /* API Key container styles */
+    #api-key-container {
+      display: none;
+      padding: 5px;
+      margin-right: 5px;
+      border-radius: 3px;
+    }
+
+    #api-key-input {
+      width: 100%;
+      margin-bottom: 5px;
+      font-size: 10px;
+      padding: 4px;
+      border-radius: 2px;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 2px;
+    }
+
+    /* Control buttons */
+    .mini-buttons {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      display: flex;
+      gap: 3px;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+
+    .mini-buttons:hover {
+      opacity: 1;
+    }
+
+    .mini-btn {
+      width: 14px;
+      height: 14px;
+      font-size: 8px;
+      line-height: 10px;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+      border-radius: 2px;
+      padding: 0;
+      transition: background-color 0.2s ease;
+      /* Hide by default (for auto mode) */
+      display: none;
+    }
+
+    /* Show submit button only in custom mode */
+    body.custom-mode .mini-btn {
+      display: block;
+    }
+
+    #save-api-key, #get-api-key {
+      flex: 1;
+      padding: 3px;
+      font-size: 10px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background-color 0.2s ease;
+    }
+
+    /* Image preview container */
+    #image-preview-container {
+      position: fixed;
+      display: none;
+      width: 30px;
+      height: 30px;
+      bottom: 10px;
+      right: 10px;
+      overflow: hidden;
+      border-radius: 5%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      z-index: 100;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #image-preview-container:hover {
+      transform: scale(1.1);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    }
+
+    #image-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #image-close {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 14px;
+      height: 14px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      text-align: center;
+      line-height: 14px;
+      font-size: 9px;
+      cursor: pointer;
+      display: none;
+      border-radius: 0 0 0 3px;
+    }
+
+    #image-preview-container:hover #image-close {
+      display: block;
+    }
+
+    #main-container {
+      position: relative;
+    }
+
+    #answer::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    /* Status indicator */
+    #status-indicator {
+      position: absolute;
+      bottom: 2px;
+      left: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      transition: background-color 0.3s ease;
+    }
+
+    #status-indicator.active {
+      background-color: rgba(0, 255, 0, 0.5);
+    }
+
+    #status-indicator.error {
+      background-color: rgba(255, 0, 0, 0.5);
+    }
+
+    /* Tooltip styles */
+    .tooltip {
+      position: relative;
+    }
+
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 120px;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 3px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 8px;
+      pointer-events: none;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    
+
+    /* Dark theme (default or when explicitly set) */
+    @media (prefers-color-scheme: dark) {
+      html, body {
+        background-color: var(--bg-color-dark);
+        color: var(--text-color-dark);
+      }
+
+      #answer {
+        background-color: var(--bg-color-dark);
+        color: var(--text-color-muted-dark);
+      }
+
+      #answer:focus {
+        color: var(--text-color-dark);
+      }
+
+      #answer::placeholder {
+        color: rgba(150, 150, 150, 0.5);
+      }
+
+      #answer.error {
+        color: rgba(255, 0, 0, 0.5) !important;
+      }
+
+      #api-key-container {
+        background-color: var(--container-bg-dark);
+      }
+
+      #api-key-input {
+        background-color: var(--input-bg-dark);
+        color: var(--text-color-dark);
+        border: 1px solid var(--border-color-dark);
+      }
+
+      .mini-btn {
+        background-color: var(--button-bg-dark);
+        color: var(--text-color-dark);
+      }
+
+      .mini-btn:hover {
+        background-color: var(--button-hover-dark);
+      }
+
+      #save-api-key, #get-api-key {
+        background-color: var(--input-bg-dark);
+        color: var(--text-color-dark);
+        border: 1px solid var(--border-color-dark);
+      }
+
+      #save-api-key:hover, #get-api-key:hover {
+        background-color: var(--button-hover-dark);
+      }
+
+      #answer::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb-dark);
+      }
+
+      #answer::-webkit-scrollbar-track {
+        background-color: var(--scrollbar-track-dark);
+      }
+
+      #status-indicator {
+        background-color: rgba(100, 100, 100, 0.5);
+      }
+
+      .tooltip .tooltip-text {
+        background-color: var(--tooltip-bg-dark);
+        color: #fff;
+      }
+
+      
+    }
+
+    /* Light theme */
+    @media (prefers-color-scheme: light) {
+      html, body {
+        background-color: var(--bg-color-light);
+        color: var(--text-color-light);
+      }
+
+      #answer {
+        background-color: var(--bg-color-light);
+        color: var(--text-color-muted-light);
+      }
+
+      #answer:focus {
+        color: var(--text-color-light);
+      }
+
+      #answer::placeholder {
+        color: rgba(120, 120, 120, 0.5);
+      }
+
+      #answer.error {
+        color: rgba(200, 0, 0, 0.7) !important;
+      }
+
+      #api-key-container {
+        background-color: var(--container-bg-light);
+      }
+
+      #api-key-input {
+        background-color: var(--input-bg-light);
+        color: var(--text-color-light);
+        border: 1px solid var(--border-color-light);
+      }
+
+      .mini-btn {
+        background-color: var(--button-bg-light);
+        color: var(--text-color-light);
+      }
+
+      .mini-btn:hover {
+        background-color: var(--button-hover-light);
+      }
+
+      #save-api-key, #get-api-key {
+        background-color: var(--input-bg-light);
+        color: var(--text-color-light);
+        border: 1px solid var(--border-color-light);
+      }
+
+      #save-api-key:hover, #get-api-key:hover {
+        background-color: var(--button-hover-light);
+      }
+
+      #answer::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb-light);
+      }
+
+      #answer::-webkit-scrollbar-track {
+        background-color: var(--scrollbar-track-light);
+      }
+
+      #status-indicator {
+        background-color: rgba(150, 150, 150, 0.5);
+      }
+
+      .tooltip .tooltip-text {
+        background-color: var(--tooltip-bg-light);
+        color: #fff;
+      }
+
+      
+    }
+  </style>
+</head>
+<body>
+  <div id="api-key-container">
+    <input type="text" id="api-key-input" placeholder="Enter Gemini API Key">
+    <div class="button-container">
+      <button id="save-api-key">Set Key</button>
+      <button id="get-api-key">Get Key</button>
+    </div>
+  </div>
+  
+  <div id="main-container">
+    <textarea id="answer" placeholder="..."></textarea>
+    <div class="mini-buttons">
+      <button id="submit-prompt" class="mini-btn tooltip" title="Send (Ctrl+Enter)">></button>
+    </div>
+    <div id="image-preview-container">
+      <img id="image-preview" src="" alt="Image preview">
+      <div id="image-close">X</div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
